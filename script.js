@@ -1,31 +1,54 @@
-const slider = document.querySelector('.items');
-let isDown = false;
-let startX;
-let scrollLeft;
+const cubes = document.querySelectorAll(".cube");
+  const container = document.querySelector(".container");
 
-slider.addEventListener('mousedown', (e) => {
-  isDown = true;
-  slider.classList.add('active');
-  startX = e.pageX;
-  scrollLeft = slider.scrollLeft;
-});
+  let selectedCube = null;
+  let offsetX = 0;
+  let offsetY = 0;
 
-slider.addEventListener('mouseleave', () => {
-  isDown = false;
-  slider.classList.remove('active');
-});
+  cubes.forEach(cube => {
 
-slider.addEventListener('mouseup', () => {
-  isDown = false;
-  slider.classList.remove('active');
-});
+    cube.addEventListener("mousedown", function(e) {
 
-slider.addEventListener('mousemove', (e) => {
-  if (!isDown) return;
-  e.preventDefault();
-  
-  const x = e.pageX;
-  const walk = (x - startX) * 3; 
-  
-  slider.scrollLeft = scrollLeft - walk;
-});
+      selectedCube = cube;
+
+      cube.style.position = "absolute";
+
+      const containerRect = container.getBoundingClientRect();
+      const cubeRect = cube.getBoundingClientRect();
+
+      offsetX = e.clientX - cubeRect.left;
+      offsetY = e.clientY - cubeRect.top;
+
+      cube.style.left = cubeRect.left - containerRect.left + "px";
+      cube.style.top = cubeRect.top - containerRect.top + "px";
+
+    });
+
+  });
+
+  document.addEventListener("mousemove", function(e) {
+
+    if (selectedCube) {
+
+      const containerRect = container.getBoundingClientRect();
+
+      let newX = e.clientX - containerRect.left - offsetX;
+      let newY = e.clientY - containerRect.top - offsetY;
+
+      const maxX = container.clientWidth - selectedCube.offsetWidth;
+      const maxY = container.clientHeight - selectedCube.offsetHeight;
+
+      if (newX < 0) newX = 0;
+      if (newY < 0) newY = 0;
+      if (newX > maxX) newX = maxX;
+      if (newY > maxY) newY = maxY;
+
+      selectedCube.style.left = newX + "px";
+      selectedCube.style.top = newY + "px";
+    }
+
+  });
+
+  document.addEventListener("mouseup", function() {
+    selectedCube = null;
+  });
